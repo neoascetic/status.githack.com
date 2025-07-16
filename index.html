@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Service Status - Simple Status Pages for Your Projects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Create simple status pages for your projects and services. Monitor uptime and display service status with a clean, professional interface. Easy to deploy and customize.">
+  <meta name="keywords" content="status page, service status, uptime monitoring, service health, project status, website status, API status">
+  <meta name="author" content="status.githack.com">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://status.githack.com">
+  <meta name="theme-color" content="#0d6efd">
+  <meta name="application-name" content="Service Status">
+  <meta name="mobile-web-app-title" content="Service Status">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .status-btn {
+      height: 32px;
+      width: 32px;
+      padding: 0;
+      margin: 1px;
+      display: block;
+      align-items: center;
+      justify-content: center;
+    }
+    .container-limited {
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #carbon-responsive {
+      margin: 10px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="py-5 container-limited">
+    <header class="mb-4">
+      <h1 class="display-4 text-center">Service status</h1>
+      <div class="text-center mb-3 placeholder-glow">
+        <p id="repo-description" class="mb-2 text-muted placeholder col-6 rounded mx-auto bg-secondary-subtle">&nbsp;</p>
+        <a id="repo-link" href="#" target="_blank" class="text-decoration-underline d-block placeholder col-4 rounded mx-auto bg-secondary-subtle">&nbsp;</a>
+      </div>
+    </header>
+    <main>
+      <script async src="//cdn.carbonads.com/carbon.js?serve=CEADPK3U&placement=rawgithackcom&format=responsive" id="_carbonads_js"></script>
+      <div id="reports" class="mb-5">
+        <div class="card mb-4 border border-light-subtle placeholder-glow" aria-hidden="true">
+          <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
+            <h3 class="card-title col-6 mb-0 text-uppercase fs-5">
+              <span class="placeholder col-6 bg-secondary-subtle rounded">&nbsp;</span>
+            </h3>
+            <span class="placeholder col-2 bg-secondary-subtle rounded">&nbsp;</span>
+          </div>
+          <div class="card-body py-2">
+            <div class="text-end text-muted small">
+              <span class="placeholder col-4 bg-secondary-subtle rounded">&nbsp;</span>
+            </div>
+            <div class="d-flex flex-row placeholder my-1 py-1 col-12 bg-secondary-subtle rounded">
+              &nbsp;
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4 border border-light-subtle placeholder-glow" aria-hidden="true">
+          <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
+            <h3 class="card-title col-6 mb-0 text-uppercase fs-5">
+              <span class="placeholder col-6 bg-secondary-subtle rounded">&nbsp;</span>
+            </h3>
+            <span class="placeholder col-2 bg-secondary-subtle rounded">&nbsp;</span>
+          </div>
+          <div class="card-body py-2">
+            <div class="text-end text-muted small">
+              <span class="placeholder col-4 bg-secondary-subtle rounded">&nbsp;</span>
+            </div>
+            <div class="d-flex flex-row placeholder my-1 py-1 col-12 bg-secondary-subtle rounded">
+              &nbsp;
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4 border border-light-subtle placeholder-glow" aria-hidden="true">
+          <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
+            <h3 class="card-title col-6 mb-0 text-uppercase fs-5">
+              <span class="placeholder col-6 bg-secondary-subtle rounded">&nbsp;</span>
+            </h3>
+            <span class="placeholder col-2 bg-secondary-subtle rounded">&nbsp;</span>
+          </div>
+          <div class="card-body py-2">
+            <div class="text-end text-muted small">
+              <span class="placeholder col-4 bg-secondary-subtle rounded">&nbsp;</span>
+            </div>
+            <div class="d-flex flex-row placeholder my-1 py-1 col-12 bg-secondary-subtle rounded">
+              &nbsp;
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="templates" style="display: none">
+        <button id="statusBtnTemplate" type="button" class="btn btn-sm status-btn $btnClass" data-status="$status" data-date="$date" data-bs-toggle="popover" data-bs-html="true" data-bs-title="$date" data-bs-content="$statusDesc"></button>
+        <div id="statusLineTemplate" class="d-flex flex-row"></div>
+        <div id="statusStreamContainerTemplate" class="d-flex flex-row mb-2 px-3"></div>
+        <div id="statusContainerTemplate" class="card mb-4 $borderClass">
+          <div class="card-header $headerBgClass d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
+            <h3 class="card-title mb-0 text-uppercase fs-5">$title</h3>
+            <span class="$badgeClass">$statusText</span>
+          </div>
+          <div class="card-body py-2">
+            <div class="text-end text-muted small">$upTime in the last 30 days</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
