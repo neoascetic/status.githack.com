@@ -37,7 +37,7 @@ function getRepoInfo() {
       if (data.homepage) {
         repoLink.href = data.homepage;
         repoLink.textContent = data.homepage;
-        repoLink.classList.add('text-primary', 'd-inline');
+        repoLink.classList.add('text-primary', 'd-inline', 'text-decoration-underline');
         // Update page title
         document.title = `Status page for ${data.homepage}`;
       } else {
@@ -111,9 +111,9 @@ function getStatusProps(color) {
       statusDesc = "Partial outages recorded on this day.";
       break;
     case "nodata":
-      headerBgClass = "bg-secondary-subtle text-dark";
+      headerBgClass = "bg-secondary-subtle text-secondary-subtle";
       borderClass = "border border-secondary-subtle";
-      badgeClass = "text-dark";
+      badgeClass = "text-secondary-subtle";
       textClass = "text-secondary";
       btnClass = "btn-light";
       statusText = "No Data Available";

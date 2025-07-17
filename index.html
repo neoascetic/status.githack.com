@@ -34,9 +34,8 @@
       margin-left: auto;
       margin-right: auto;
     }
-    #carbon-responsive {
-      margin: 10px auto;
-    }
+    #carbon-container { min-height: 130px; }
+    #carbon-responsive { margin: 10px auto; }
   </style>
 </head>
 <body>
@@ -45,11 +44,13 @@
       <h1 class="display-4 text-center">Service status</h1>
       <div class="text-center mb-3 placeholder-glow">
         <p id="repo-description" class="mb-2 text-muted placeholder col-6 rounded mx-auto bg-secondary-subtle">&nbsp;</p>
-        <a id="repo-link" href="#" target="_blank" class="text-decoration-underline d-block placeholder col-4 rounded mx-auto bg-secondary-subtle">&nbsp;</a>
+        <a id="repo-link" href="#" target="_blank" class="text-decoration-none d-block placeholder col-4 rounded mx-auto bg-secondary-subtle">&nbsp;</a>
       </div>
     </header>
     <main>
-      <script async src="//cdn.carbonads.com/carbon.js?serve=CEADPK3U&placement=rawgithackcom&format=responsive" id="_carbonads_js"></script>
+      <div id="carbon-container">
+        <script async src="//cdn.carbonads.com/carbon.js?serve=CEADPK3U&placement=rawgithackcom&format=responsive" id="_carbonads_js"></script>
+      </div>
       <div id="reports" class="mb-5">
         <div class="card mb-4 border border-light-subtle placeholder-glow" aria-hidden="true">
           <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
