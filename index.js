@@ -4,7 +4,7 @@ let cloneId = 0;
 
 function getRepoParam() {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('repo');
+  return urlParams.get('r');
 }
 
 function getRepoUrl() {
