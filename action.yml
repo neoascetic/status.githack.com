@@ -37,16 +37,21 @@ runs:
           cmd="$cmd $new_cmd"
         done < status.cfg
 
+        curl_exit_code=0
         if [[ -n $cmd ]]; then
-          curl --variable date="$(date '+%Y-%m-%d %H:%M')" $cmd
-          if [[ -f log.csv ]]; then
-            lines_to_keep=$((url_count * 8640))
-            tail -n "$lines_to_keep" log.csv > log.csv.tmp && mv log.csv.tmp log.csv
-          fi
+          curl --variable date="$(date '+%Y-%m-%d %H:%M')" $cmd || curl_exit_code=$?
         fi
+
+        if [[ -f log.csv ]]; then
+          lines_to_keep=$((url_count * 8640))
+          tail -n "$lines_to_keep" log.csv > log.csv.tmp && mv log.csv.tmp log.csv
+        fi
+
+        exit $curl_exit_code
       shell: bash
     - name: Commit and push log.csv to log branch
       uses: stefanzweifel/git-auto-commit-action@v5
+      if: always()
       with:
         file_pattern: 'log.csv'
         commit_message: 'Update status log'
