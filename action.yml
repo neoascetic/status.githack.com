@@ -61,3 +61,4 @@ runs:
         file_pattern: 'log.csv'
         commit_message: 'Update status log'
         branch: 'log'
+        create_branch: true
