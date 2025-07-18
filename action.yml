@@ -29,10 +29,15 @@ runs:
         url_count=0
         while IFS= read -r line || [[ -n $line ]]; do
           [[ -z $line || $line == \#* ]] && continue
-          read -r id url rest <<< "$line"
+          # Read first two fields: id and url
+          read -r id url <<< "$line"
           [[ -z $id || -z $url ]] && continue
-          ((url_count++))
-          new_cmd="--variable id=${id} --config curlrc ${url} ${rest}"
+          # Extract everything after the URL as additional curl parameters
+          rest="${line#*$url}"
+          rest="${rest# }"  # Remove leading space if present
+          url_count=$((url_count + 1))
+          new_cmd="--variable id=${id} --config curlrc ${url}"
+          [[ -n $rest ]] && new_cmd="$new_cmd $rest"
           if [[ -n $cmd ]]; then new_cmd="--next $new_cmd"; fi
           cmd="$cmd $new_cmd"
         done < status.cfg
