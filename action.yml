@@ -39,8 +39,10 @@ runs:
 
         if [[ -n $cmd ]]; then
           curl --variable date="$(date '+%Y-%m-%d %H:%M')" $cmd
-          lines_to_keep=$((url_count * 8640))
-          tail -n "$lines_to_keep" log.csv > log.csv.tmp && mv log.csv.tmp log.csv
+          if [[ -f log.csv ]]; then
+            lines_to_keep=$((url_count * 8640))
+            tail -n "$lines_to_keep" log.csv > log.csv.tmp && mv log.csv.tmp log.csv
+          fi
         fi
       shell: bash
     - name: Commit and push log.csv to log branch
