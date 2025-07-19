@@ -6,6 +6,7 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 
 - **Instant status page**: Get a beautiful, public dashboard for your service uptime in minutes.
 - **Automated monitoring**: Checks your endpoints on schedule and logs results automatically.
+- **Instant notifications**: Get email alerts when services go down via GitHub Actions.
 - **Transparent & open**: All data and history are stored in your own GitHub repository.
 - **No vendor lock-in**: You control your data, your config, and your branding.
 - **Free & open-source**: No hidden fees, no limits, no closed code.
@@ -24,6 +25,7 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 3. **Automated checks**
    - GitHub Actions will be set up automatically — no extra steps required.
    - The workflow will start checking your services and updating `log.csv` on the `log` branch.
+   - You'll receive email notifications when checks fail (configured in your GitHub settings).
 4. **Share your status page**
    - Your status dashboard is instantly available at:
      ```
