@@ -37,10 +37,12 @@ while IFS= read -r line || [[ -n $line ]]; do
   cmd="$cmd $new_cmd"
 done < status.cfg
 
-# Switch to branch 'log', create orphan branch if it doesn't exist
-maybe_orphan=""
-git show-ref --verify --quiet refs/heads/log || maybe_orphan="--orphan"
-git switch $maybe_orphan log
+if git ls-remote --exit-code --heads origin log > /dev/null; then
+  git fetch origin log:log
+  git switch log
+else
+  git switch --orphan log
+fi
 
 curl_exit_code=0
 if [[ -n $cmd ]]; then

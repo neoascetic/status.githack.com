@@ -11,5 +11,8 @@ runs:
       if: always()
       with:
         file_pattern: 'log.csv'
-        commit_message: 'Update status log'
         branch: 'log'
+        commit_message: 'Update status log'
+        commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+        commit_options: '--amend --no-edit'
+        push_options: '--force'
