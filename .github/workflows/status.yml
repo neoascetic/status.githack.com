@@ -1,0 +1,21 @@
+name: Service Status Monitoring
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  push:
+    paths:
+      - 'status.cfg'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run status check and commit logs
+        uses: neoascetic/status.githack.com@action
