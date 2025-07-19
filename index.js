@@ -220,6 +220,14 @@ async function genReportLog(container, key, logData) {
 
 async function genAllReports() {
   const response = await fetch(url);
+  if (response.status === 404) {
+    const reports = document.getElementById("reports");
+    const alert = document.getElementById("noDataAlertTemplate").cloneNode(true);
+    alert.id = "noDataAlert";
+    reports.innerHTML = '';
+    reports.appendChild(alert);
+    return;
+  }
   const log = await response.text();
   const logLines = log.split("\n");
   let acc = {}
