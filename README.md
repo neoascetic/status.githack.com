@@ -46,6 +46,17 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 - **Simplicity**: No complex setup, no accounts, no billing.
 - **No vendor lock-in**: You keep full control of your data and monitoring history.
 
+## Customizing your status page
+
+The service description and link displayed on your status page are automatically taken from your repository's **Description** and **Homepage** fields on GitHub. To change them:
+
+1. Go to your repository on GitHub.
+2. Click the gear icon (⚙️) or "Settings".
+3. Edit the **Description** and **Homepage** fields at the top of the repository page.
+4. Save your changes — your status page will update automatically.
+
+This makes it easy to personalize your status page without editing any code.
+
 ---
 
 Want a status page like this for your own project? Create your own repo from this template and show your users you care about uptime! 
