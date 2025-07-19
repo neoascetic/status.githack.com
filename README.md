@@ -12,9 +12,7 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 
 ## How it works
 
-1. **Create your own status repository**
-   - Click the green **"Use this template"** button at the top right of the GitHub page to create your own repository from this template.
-   - No need to create any branches manually — just use the default `master` branch.
+1. [Create your own status repository from this template](https://github.com/neoascetic/status.githack.com/generate)
 2. **Configure your services**
    - Add your endpoints to the `status.cfg` file in your new repository.
      - Example:
