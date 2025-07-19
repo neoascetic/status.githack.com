@@ -49,7 +49,7 @@ if [[ -n $cmd ]]; then
   curl --variable date="$(date '+%Y-%m-%d %H:%M')" $cmd || curl_exit_code=$?
 fi
 
-if [[ -f log.csv ]]; then
+if [[ $url_count -gt 0 && -f log.csv ]]; then
   lines_to_keep=$((url_count * 8640))
   tail -n "$lines_to_keep" log.csv > log.csv.tmp && mv log.csv.tmp log.csv
 fi
