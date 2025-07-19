@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+if [ ! -f status.cfg ]; then
+  echo "No config found"
+  exit 0
+fi
+
 # Create curlrc config file in temporary location
 curlrc=$(mktemp)
 cat > "$curlrc" << 'EOF'
@@ -14,27 +19,18 @@ cat > "$curlrc" << 'EOF'
 --expand-write-out "%output{>>log.csv}{{id}},{{date}},%{http_code}\n"
 EOF
 
-if [ ! -f status.cfg ]; then
-  echo "No config found"
-  rm "$curlrc"
-  exit 0
-fi
-
-cmd=""
+curl_args=()
 url_count=0
 while IFS= read -r line || [[ -n $line ]]; do
-  [[ -z $line || $line == \#* ]] && continue
-  # Read first two fields: id and url
-  read -r id url <<< "$line"
-  [[ -z $id || -z $url ]] && continue
-  # Extract everything after the URL as additional curl parameters
-  rest="${line#*$url}"
-  rest="${rest# }"  # Remove leading space if present
+  if [[ -z $line || $line == \#* ]]; then continue; fi
+  read -r id url rest <<< "$line"
+  if [[ -z $id || -z $url ]]; then continue; fi
   url_count=$((url_count + 1))
-  new_cmd="--variable id=${id} --config $curlrc ${url}"
-  [[ -n $rest ]] && new_cmd="$new_cmd $rest"
-  if [[ -n $cmd ]]; then new_cmd="--next $new_cmd"; fi
-  cmd="$cmd $new_cmd"
+  if [[ ${#curl_args[@]} -gt 0 ]]; then curl_args+=("--next"); fi
+  curl_args+=("--variable" "id=${id}" "--config" "$curlrc" "$url")
+
+  # eval needed to properly parse curl arguments with quotes (JSON data)
+  if [[ -n $rest ]]; then eval "curl_args+=($rest)"; fi
 done < status.cfg
 
 if git ls-remote --exit-code --heads origin log > /dev/null; then
@@ -45,8 +41,8 @@ else
 fi
 
 curl_exit_code=0
-if [[ -n $cmd ]]; then
-  curl --variable date="$(date '+%Y-%m-%d %H:%M')" $cmd || curl_exit_code=$?
+if [[ ${#curl_args[@]} -gt 0 ]]; then
+  curl --variable date="$(date '+%Y-%m-%d %H:%M')" "${curl_args[@]}" || curl_exit_code=$?
 fi
 
 if [[ $url_count -gt 0 && -f log.csv ]]; then
