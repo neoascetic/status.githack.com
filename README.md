@@ -29,7 +29,9 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
      ```
      https://status.githack.com?r=your-username/your-repo
      ```
-   - No need to deploy or host anything yourself.
+   - Replace `your-username/your-repo` with your actual GitHub username and repository name.
+   - Example: `https://status.githack.com?r=john/my-project-status`
+   - Share this link with your users to show your service status.
 
 ## Configuration
 
