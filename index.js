@@ -4,7 +4,7 @@ let cloneId = 0;
 
 function getRepoParam() {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('r') || 'neoascetic/status.githack.com';
+  return urlParams.get('r') || 'neoascetic/status.githack.com-monitor';
 }
 
 function getRepoUrl() {
