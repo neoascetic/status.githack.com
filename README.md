@@ -23,7 +23,7 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
        ```
 3. **Automated checks**
    - GitHub Actions will be set up automatically — no extra steps required.
-   - The workflow will start checking your services and updating `log.csv` on schedule.
+   - The workflow will start checking your services and updating `log.csv` on the `log` branch.
 4. **Share your status page**
    - Your status dashboard is instantly available at:
      ```
@@ -34,7 +34,7 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 ## Configuration
 
 - `status.cfg`: List of services to monitor. Each line: `<id> <url> [curl options]`
-- `log.csv`: Automatically updated log of checks (do not edit manually).
+- `log.csv`: Automatically updated log of checks (stored in the `log` branch, do not edit manually).
 
 ## Who is it for?
 - Indie hackers, open-source maintainers, small teams, and anyone who wants a simple, transparent status page without SaaS lock-in.
