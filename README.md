@@ -1,4 +1,4 @@
-# status.githack.com
+# [status.githack.com](https://status.githack.com)
 
 Effortless, open-source status pages for your sites and APIs — with GitHub Actions integration.
 
