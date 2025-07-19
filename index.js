@@ -4,15 +4,12 @@ let cloneId = 0;
 
 function getRepoParam() {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('r');
+  return urlParams.get('r') || 'neoascetic/status.githack.com';
 }
 
 function getRepoUrl() {
   const repo = getRepoParam();
-  if (repo) {
-    return `https://raw.githubusercontent.com/${repo}/refs/heads/master/log.csv`;
-  }
-  return "https://raw.githubusercontent.com/neoascetic/rawgithack-status/refs/heads/master/log.csv";
+  return `https://raw.githubusercontent.com/${repo}/refs/heads/log/log.csv`;
 }
 
 function getRepoInfo() {
