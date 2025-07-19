@@ -8,6 +8,10 @@ on:
       - 'status.cfg'
   workflow_dispatch:
 
+concurrency:
+  group: status-githack
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
