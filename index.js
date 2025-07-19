@@ -40,6 +40,7 @@ function getRepoInfo() {
       } else {
         repoLink.href = '#';
         repoLink.textContent = '';
+        document.title = repo;
       }
     })
     .catch(error => {
