@@ -1,0 +1,58 @@
+#!/bin/bash
+set -e
+
+# Create curlrc config file in temporary location
+curlrc=$(mktemp)
+cat > "$curlrc" << 'EOF'
+--retry 5
+--retry-delay 5
+--retry-all-errors
+--fail
+--parallel
+--silent
+--output /dev/null
+--expand-write-out "%output{>>log.csv}{{id}},{{date}},%{http_code}\n"
+EOF
+
+if [ ! -f status.cfg ]; then
+  echo "No config found"
+  rm "$curlrc"
+  exit 0
+fi
+
+cmd=""
+url_count=0
+while IFS= read -r line || [[ -n $line ]]; do
+  [[ -z $line || $line == \#* ]] && continue
+  # Read first two fields: id and url
+  read -r id url <<< "$line"
+  [[ -z $id || -z $url ]] && continue
+  # Extract everything after the URL as additional curl parameters
+  rest="${line#*$url}"
+  rest="${rest# }"  # Remove leading space if present
+  url_count=$((url_count + 1))
+  new_cmd="--variable id=${id} --config $curlrc ${url}"
+  [[ -n $rest ]] && new_cmd="$new_cmd $rest"
+  if [[ -n $cmd ]]; then new_cmd="--next $new_cmd"; fi
+  cmd="$cmd $new_cmd"
+done < status.cfg
+
+# Switch to branch 'log', create orphan branch if it doesn't exist
+maybe_orphan=""
+git show-ref --verify --quiet refs/heads/log || maybe_orphan="--orphan"
+git switch $maybe_orphan log
+
+curl_exit_code=0
+if [[ -n $cmd ]]; then
+  curl --variable date="$(date '+%Y-%m-%d %H:%M')" $cmd || curl_exit_code=$?
+fi
+
+if [[ -f log.csv ]]; then
+  lines_to_keep=$((url_count * 8640))
+  tail -n "$lines_to_keep" log.csv > log.csv.tmp && mv log.csv.tmp log.csv
+fi
+
+# Clean up temporary file
+rm "$curlrc"
+
+exit $curl_exit_code 

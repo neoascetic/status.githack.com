@@ -1,0 +1,15 @@
+name: Run status check and show log
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run status check
+      run: ${{ github.action_path }}/run
+      shell: bash
+    - name: Commit and push log.csv to log branch
+      uses: stefanzweifel/git-auto-commit-action@v6
+      if: always()
+      with:
+        file_pattern: 'log.csv'
+        commit_message: 'Update status log'
+        branch: 'log'
