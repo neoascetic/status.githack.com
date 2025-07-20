@@ -38,11 +38,6 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
    - Example: `https://status.githack.com?r=john/my-project-status`
    - Share this link with your users to show your service status.
 
-## Configuration
-
-- `status.cfg`: List of services to monitor. Each line: `<id> <url> [curl options]`
-- `log.csv`: Automatically updated log of checks (stored in the `log` branch, do not edit manually).
-
 ## Customizing your status page
 
 The service description and link displayed on your status page are automatically taken from your repository's **Description** and **Homepage** fields on GitHub. To change them:
