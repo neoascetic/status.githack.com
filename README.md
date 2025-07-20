@@ -8,8 +8,11 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 - **Automated monitoring**: Checks your endpoints on schedule and logs results automatically.
 - **Instant notifications**: Get email alerts when services go down via GitHub Actions.
 - **Transparent & open**: All data and history are stored in your own GitHub repository.
-- **No vendor lock-in**: You control your data, your config, and your branding.
+- **No vendor lock-in**: You keep full control of your data and monitoring history.
 - **Free & open-source**: No hidden fees, no limits, no closed code.
+
+## Who is it for?
+- Indie hackers, open-source maintainers, small teams, and anyone who wants a simple, transparent status page without SaaS lock-in.
 
 ## How it works
 
@@ -39,14 +42,6 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 
 - `status.cfg`: List of services to monitor. Each line: `<id> <url> [curl options]`
 - `log.csv`: Automatically updated log of checks (stored in the `log` branch, do not edit manually).
-
-## Who is it for?
-- Indie hackers, open-source maintainers, small teams, and anyone who wants a simple, transparent status page without SaaS lock-in.
-
-## Why status.githack.com?
-- **Trust**: All checks and logs are public and auditable.
-- **Simplicity**: No complex setup, no accounts, no billing.
-- **No vendor lock-in**: You keep full control of your data and monitoring history.
 
 ## Customizing your status page
 
