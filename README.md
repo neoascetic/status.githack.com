@@ -19,12 +19,12 @@ Effortless, open-source status pages for your sites and APIs — with GitHub Act
 1. [Create your own status repository from this template](https://github.com/neoascetic/status.githack.com/generate)
 2. **Configure your services**
    - Add your endpoints to the `status.cfg` file in your new repository.
-     - Example:
-       ```
-       google https://www.google.com
-       github https://www.github.com
-       my_service https://my.service.com
-       ```
+   - Example:
+     ```
+     google https://www.google.com
+     github https://www.github.com
+     my_service https://my.service.com
+     ```
 3. **Automated checks**
    - GitHub Actions will be set up automatically — no extra steps required.
    - The workflow will start checking your services and updating `log.csv` on the `log` branch.
