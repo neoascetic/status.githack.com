@@ -47,7 +47,9 @@ if [[ ${#curl_args[@]} -gt 0 ]]; then
 fi
 
 # display output in action log and append to global log
+echo "Check details:"
 cat "$log" | tee -a log.csv
+echo ""
 
 if [[ $url_count -gt 0 && -f log.csv ]]; then
   lines_to_keep=$((url_count * 8640))
