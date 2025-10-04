@@ -6,9 +6,10 @@ if [ ! -f status.cfg ]; then
   exit 0
 fi
 
-# Create curlrc config file in temporary location
 curlrc=$(mktemp)
-cat > "$curlrc" << 'EOF'
+log=$(mktemp)
+
+cat > "$curlrc" << EOF
 --retry 5
 --retry-delay 5
 --retry-all-errors
@@ -16,7 +17,7 @@ cat > "$curlrc" << 'EOF'
 --parallel
 --silent
 --output /dev/null
---expand-write-out "%output{>>log.csv}{{id}},{{date}},%{http_code}\n"
+--expand-write-out "%output{>>{{log}}}{{id}},{{date}},%{http_code}\n"
 EOF
 
 curl_args=()
@@ -27,7 +28,7 @@ while IFS= read -r line || [[ -n $line ]]; do
   if [[ -z $id || -z $url ]]; then continue; fi
   url_count=$((url_count + 1))
   if [[ ${#curl_args[@]} -gt 0 ]]; then curl_args+=("--next"); fi
-  curl_args+=("--variable" "id=${id}" "--config" "$curlrc" "$url")
+  curl_args+=("--variable" "log=${log}" "--variable" "id=${id}" "--config" "$curlrc" "$url")
 
   # eval needed to properly parse curl arguments with quotes (JSON data)
   if [[ -n $rest ]]; then eval "curl_args+=($rest)"; fi
@@ -45,6 +46,9 @@ if [[ ${#curl_args[@]} -gt 0 ]]; then
   curl --variable date="$(date '+%Y-%m-%d %H:%M')" "${curl_args[@]}" || curl_exit_code=$?
 fi
 
+# display output in action log and append to global log
+cat "$log" | tee -a log.csv
+
 if [[ $url_count -gt 0 && -f log.csv ]]; then
   lines_to_keep=$((url_count * 8640))
   tail -n "$lines_to_keep" log.csv > log.csv.tmp && mv log.csv.tmp log.csv
@@ -52,5 +56,6 @@ fi
 
 # Clean up temporary file
 rm "$curlrc"
+rm "$log"
 
-exit $curl_exit_code 
+exit $curl_exit_code
