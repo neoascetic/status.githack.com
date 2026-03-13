@@ -117,17 +117,16 @@ section[data-status] > header span {
   padding: .4rem 1rem 1rem;
 }
 
-button[data-status] {
+.stream span[data-status] {
   height: 32px;
   width: 100%;
   background: var(--status);
-  border: none;
   border-radius: var(--radius-sm);
   cursor: default;
   opacity: .85;
   transition: opacity .1s;
 }
-button[data-status]:hover { opacity: 1; }
+.stream span[data-status]:hover { opacity: 1; }
 
 #tooltip {
   position: fixed;
@@ -283,7 +282,7 @@ function buildSkeleton() {
 function buildSquare(date, uptimeVal, counts) {
   const color = uptimeColor(uptimeVal);
   const { text, desc } = STATUS_PROPS[color];
-  const btn = document.createElement('button');
+  const btn = document.createElement('span');
   btn.dataset.status     = color;
   btn.dataset.date       = date.toDateString();
   btn.dataset.statusText = text;
@@ -428,7 +427,7 @@ function initTooltip() {
   const reports = document.getElementById('reports');
 
   reports.addEventListener('mouseover', e => {
-    const btn = e.target.closest('button[data-status]');
+    const btn = e.target.closest('span[data-status]');
     if (!btn) return;
     const { date, status, statusText, statusDesc, total, failed } = btn.dataset;
     const checksLine = total
@@ -443,7 +442,7 @@ function initTooltip() {
   });
 
   reports.addEventListener('mouseout', e => {
-    if (!e.relatedTarget?.closest('button[data-status]')) tooltip.hidden = true;
+    if (!e.relatedTarget?.closest('span[data-status]')) tooltip.hidden = true;
   });
 
   document.addEventListener('mousemove', e => {
