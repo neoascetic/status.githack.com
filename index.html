@@ -56,7 +56,7 @@ body {
 h1 { font-size: 3rem; font-weight: 300; margin-bottom: .5rem; }
 
 #repo-description { color: var(--muted); margin-bottom: .25rem; }
-#repo-description.skeleton { width: 260px; height: .9rem; margin: 0 auto .5rem; }
+#repo-description.skeleton { width: 320px; height: 2.2rem; margin: 0 auto .6rem; }
 #repo-link.skeleton { width: 160px; height: .85rem; margin: 0 auto; display: block; }
 #last-updated { color: var(--muted); font-size: .8rem; margin-bottom: 1.5rem; }
 
@@ -206,7 +206,11 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
       <div id="status-ad" class="flat adaptive horizontal" data-ea-publisher="githackcom" data-ea-style="fixedfooter" data-ea-type="text" data-ea-verbosity="quiet"></div>
       <script defer src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
 
-      <div id="reports"></div>
+      <div id="reports">
+        <section data-skeleton><header><span class="skeleton sk-title"></span><span class="skeleton sk-badge"></span></header><span class="skeleton sk-uptime"></span><div class="skeleton sk-bar"></div></section>
+        <section data-skeleton><header><span class="skeleton sk-title"></span><span class="skeleton sk-badge"></span></header><span class="skeleton sk-uptime"></span><div class="skeleton sk-bar"></div></section>
+        <section data-skeleton><header><span class="skeleton sk-title"></span><span class="skeleton sk-badge"></span></header><span class="skeleton sk-uptime"></span><div class="skeleton sk-bar"></div></section>
+      </div>
       <p id="last-updated" hidden></p>
     </main>
 
@@ -248,16 +252,6 @@ function setFavicon(status) {
   if (!fill) return;
   document.querySelector('link[rel="icon"]').href =
     `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='${fill}'/></svg>`;
-}
-
-function buildSkeleton() {
-  const el = document.createElement('section');
-  el.dataset.skeleton = '';
-  el.innerHTML =
-    '<header><span class="skeleton sk-title"></span><span class="skeleton sk-badge"></span></header>' +
-    '<span class="skeleton sk-uptime"></span>' +
-    '<div class="skeleton sk-bar"></div>';
-  return el;
 }
 
 function buildSquare(date, uptimeVal, counts) {
@@ -439,7 +433,6 @@ function initTooltip() {
 }
 
 const reports = document.getElementById('reports');
-for (let i = 0; i < 3; i++) reports.appendChild(buildSkeleton());
 refresh().then(initTooltip);
 (window.requestIdleCallback || setTimeout)(getRepoInfo);
   </script>
