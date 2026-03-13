@@ -46,9 +46,10 @@ body {
   color: var(--fg);
   font-family: system-ui, -apple-system, sans-serif;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
-.wrap { max-width: 960px; margin: 0 auto; padding: 3rem 1rem; }
+.wrap { max-width: 960px; min-width: 500px; margin: 0 auto; padding: 3rem 1rem; }
 
 .wrap > header { text-align: center; margin-bottom: 2rem; min-height: 160px; }
 
@@ -87,10 +88,18 @@ section[data-status] > header {
 }
 
 section[data-status] > header h3 {
+  flex: 1;
+  min-width: 0;
   font-size: .95rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .04em;
+}
+
+section[data-status] > header span {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: .75rem;
 }
 
 .card-uptime {
@@ -127,8 +136,10 @@ button[data-status]:hover { opacity: 1; }
   border-radius: var(--radius);
   padding: .5rem .75rem;
   font-size: .85rem;
-  width: 200px;
+  width: max-content;
+  max-width: 280px;
   pointer-events: none;
+  white-space: nowrap;
   box-shadow: 0 4px 14px rgba(0,0,0,.15);
   z-index: 9999;
   line-height: 1.4;
@@ -136,7 +147,7 @@ button[data-status]:hover { opacity: 1; }
 #tooltip[hidden] { display: none; }
 #tooltip strong  { display: block; margin-bottom: .3rem; }
 #tooltip [data-status] { color: var(--status); }
-#tooltip .tip-desc { color: var(--muted); font-size: .8rem; margin-top: .2rem; }
+#tooltip .tip-desc { color: var(--muted); font-size: .8rem; margin-top: .25rem; display: block; }
 
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
@@ -203,7 +214,7 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
       <div id="status-ad" class="flat adaptive horizontal" data-ea-publisher="githackcom" data-ea-type="image" data-ea-verbosity="quiet"></div>
       <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
       <script>
-        window.addEventListener("load", (event) => {
+        window.addEventListener('load', () => {
           ethicalads.wait.then((placements) => {
             if (!placements.length) {
               const ad = document.getElementById("status-ad");
@@ -240,10 +251,10 @@ const repo = new URLSearchParams(location.search).get('r') || 'neoascetic/status
 const logUrl = `https://raw.githubusercontent.com/${repo}/refs/heads/log/log.csv`;
 
 const STATUS_PROPS = {
-  success: { text: 'Fully Operational',  desc: 'No downtime recorded on this day.' },
-  partial: { text: 'Partial Outage',     desc: 'Partial outages recorded on this day.' },
-  failure: { text: 'Major Outage',       desc: 'Major outages recorded on this day.' },
-  nodata:  { text: 'No Data Available',  desc: 'Health check was not performed.' },
+  success: { text: 'Fully Operational',  desc: 'No downtime recorded on this day' },
+  partial: { text: 'Partial Outage',     desc: 'Partial outages recorded on this day' },
+  failure: { text: 'Major Outage',       desc: 'Major outages recorded on this day' },
+  nodata:  { text: 'No Data Available',  desc: 'Health check was not performed' },
 };
 
 function uptimeColor(val) {
@@ -269,7 +280,7 @@ function buildSkeleton() {
   return el;
 }
 
-function buildSquare(date, uptimeVal) {
+function buildSquare(date, uptimeVal, counts) {
   const color = uptimeColor(uptimeVal);
   const { text, desc } = STATUS_PROPS[color];
   const btn = document.createElement('button');
@@ -277,6 +288,10 @@ function buildSquare(date, uptimeVal) {
   btn.dataset.date       = date.toDateString();
   btn.dataset.statusText = text;
   btn.dataset.statusDesc = desc;
+  if (counts) {
+    btn.dataset.total  = counts.total;
+    btn.dataset.failed = counts.total - counts.ok;
+  }
   return btn;
 }
 
@@ -302,7 +317,7 @@ function buildCard(key, uptimeData) {
   for (let i = MAX_DAYS - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
-    stream.appendChild(buildSquare(date, uptimeData[i]));
+    stream.appendChild(buildSquare(date, uptimeData[i], uptimeData.counts?.[i]));
   }
 
   const card = document.createElement('section');
@@ -320,17 +335,13 @@ function buildNoDataAlert() {
 
 function splitRowsByDate(rows) {
   const byDate = {};
-  let sum = 0, count = 0;
   for (const [dateTimeStr, resultStr] of rows) {
     const date = new Date(Date.parse(dateTimeStr.replaceAll('-', '/') + ' GMT'));
     const key = date.toDateString();
     if (!byDate[key]) byDate[key] = [];
-    const ok = parseInt(resultStr) >= 200 && parseInt(resultStr) < 300 ? 1 : 0;
-    sum += ok;
-    count++;
-    byDate[key].push(ok);
+    const ok = parseInt(resultStr, 10);
+    byDate[key].push(ok >= 200 && ok < 300 ? 1 : 0);
   }
-  byDate.upTime = count ? ((sum / count) * 100).toFixed(2) + '%' : '--%';
   return byDate;
 }
 
@@ -338,12 +349,17 @@ function normalizeData(logData) {
   const byDate = splitRowsByDate(logData);
   const now = Date.now();
   const result = {};
+  result.counts = {};
+  let sum30 = 0, count30 = 0;
   for (const [key, vals] of Object.entries(byDate)) {
     if (key === 'upTime') continue;
     const relDays = Math.floor(Math.abs(now - new Date(key).getTime()) / 864e5);
-    result[relDays] = vals.length ? vals.reduce((a, v) => a + v) / vals.length : null;
+    const ok = vals.reduce((a, v) => a + v, 0);
+    result[relDays] = vals.length ? ok / vals.length : null;
+    result.counts[relDays] = { total: vals.length, ok };
+    if (relDays < 30) { sum30 += ok; count30 += vals.length; }
   }
-  result.upTime = byDate.upTime;
+  result.upTime = count30 ? (sum30 / count30 * 100).toFixed(2) + '%' : '--%';
   return result;
 }
 
@@ -414,11 +430,15 @@ function initTooltip() {
   reports.addEventListener('mouseover', e => {
     const btn = e.target.closest('button[data-status]');
     if (!btn) return;
-    const { date, status, statusText, statusDesc } = btn.dataset;
+    const { date, status, statusText, statusDesc, total, failed } = btn.dataset;
+    const checksLine = total
+      ? `<p class="tip-desc">${+failed > 0 ? `${failed} of ${total}` : total} check${+total > 1 ? 's' : ''}${+failed > 0 ? ' failed' : ' passed'}</p>`
+      : '';
     tooltip.innerHTML =
       `<strong>${date}</strong>` +
       `<span data-status="${status}">${statusText}</span>` +
-      `<p class="tip-desc">${statusDesc}</p>`;
+      `<p class="tip-desc">${statusDesc}</p>` +
+      checksLine;
     tooltip.hidden = false;
   });
 
