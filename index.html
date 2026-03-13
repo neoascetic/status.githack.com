@@ -16,7 +16,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2328a745'/></svg>">
   <style>
 *, *::before, *::after { box-sizing: border-box; }
-body, h1, h3, h4, p, article, header, footer, small { margin: 0; padding: 0; }
+body, h1, h3, h4, p, section, header, footer, small { margin: 0; padding: 0; }
 
 :root {
   --c-success: #28a745;
@@ -55,6 +55,7 @@ body {
 h1 { font-size: 3rem; font-weight: 300; margin-bottom: .5rem; }
 
 #repo-description { color: var(--muted); margin-bottom: .25rem; }
+#last-updated { color: var(--muted); font-size: .8rem; margin-bottom: 1.5rem; }
 
 #repo-link { color: var(--link); }
 
@@ -63,7 +64,7 @@ h1 { font-size: 3rem; font-weight: 300; margin-bottom: .5rem; }
 [data-status="failure"]  { --status: var(--c-failure);  --on-status: #fff;    }
 [data-status="nodata"]   { --status: var(--c-nodata);   --on-status: #fff;    }
 
-article {
+section {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -71,21 +72,21 @@ article {
   overflow: hidden;
 }
 
-article > header {
+section > header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: .6rem 1rem;
 }
 
-article[data-status] { border-color: var(--status); }
+section[data-status] { border-color: var(--status); }
 
-article[data-status] > header {
+section[data-status] > header {
   background: var(--status);
   color: var(--on-status);
 }
 
-article[data-status] > header h3 {
+section[data-status] > header h3 {
   font-size: .95rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -149,11 +150,11 @@ button[data-status]:hover { opacity: 1; }
   border-radius: var(--radius-sm);
 }
 
-article[data-skeleton] > header { border-bottom: 1px solid var(--border); }
-article[data-skeleton] .sk-title  { width: 40%; height: 1rem; }
-article[data-skeleton] .sk-badge  { width: 18%; height: 1rem; }
-article[data-skeleton] .sk-uptime { width: 30%; height: .75rem; margin: .6rem 1rem .5rem auto; }
-article[data-skeleton] .sk-bar    { height: 2.5rem; margin: .4rem 1rem 1rem; }
+section[data-skeleton] > header { border-bottom: 1px solid var(--border); }
+section[data-skeleton] .sk-title  { width: 40%; height: 1rem; }
+section[data-skeleton] .sk-badge  { width: 18%; height: 1rem; }
+section[data-skeleton] .sk-uptime { width: 30%; height: .75rem; margin: .6rem 1rem .5rem auto; }
+section[data-skeleton] .sk-bar    { height: 2.5rem; margin: .4rem 1rem 1rem; }
 
 [data-alert] {
   background: rgba(255, 193, 7, 0.12);
@@ -215,6 +216,7 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
 
 
       <div id="reports"></div>
+      <p id="last-updated" hidden></p>
     </main>
 
     <footer>
@@ -258,7 +260,7 @@ function setFavicon(status) {
 }
 
 function buildSkeleton() {
-  const el = document.createElement('article');
+  const el = document.createElement('section');
   el.dataset.skeleton = '';
   el.innerHTML =
     '<header><span class="skeleton sk-title"></span><span class="skeleton sk-badge"></span></header>' +
@@ -303,16 +305,16 @@ function buildCard(key, uptimeData) {
     stream.appendChild(buildSquare(date, uptimeData[i]));
   }
 
-  const article = document.createElement('article');
-  article.dataset.status = color;
-  article.append(header, uptimeEl, stream);
-  return article;
+  const card = document.createElement('section');
+  card.dataset.status = color;
+  card.append(header, uptimeEl, stream);
+  return card;
 }
 
 function buildNoDataAlert() {
   const el = document.createElement('div');
   el.dataset.alert = '';
-  el.innerHTML = '<h4>No Data</h4><p>No monitoring data found for this repository. Please check your configuration or wait for the first check to complete.</p>';
+  el.innerHTML = '<h4>No Data</h4><p>No monitoring data found for this repository. <br> Please check your configuration or wait for the first check to complete.</p>';
   return el;
 }
 
@@ -350,11 +352,15 @@ async function loadReports() {
   if (!response.ok) return null;
 
   const acc = {};
+  let latestDateTime = null;
   for (const line of (await response.text()).split('\n').filter(l => l.trim())) {
     let [key, dateTime, status] = line.split(',');
     key = key.replaceAll('_', ' ');
     (acc[key] ??= []).push([dateTime, status]);
+    if (!latestDateTime || dateTime > latestDateTime) latestDateTime = dateTime;
   }
+
+  if (!Object.keys(acc).length) return null;
 
   const fragment = document.createDocumentFragment();
   let worstStatus = 'nodata';
@@ -365,6 +371,14 @@ async function loadReports() {
     fragment.appendChild(buildCard(key, data));
   }
   setFavicon(worstStatus);
+
+  if (latestDateTime) {
+    const d = new Date(Date.parse(latestDateTime.replaceAll('-', '/') + ' GMT'));
+    const el = document.getElementById('last-updated');
+    el.textContent = `Last check: ${d.toLocaleString()}`;
+    el.hidden = false;
+  }
+
   return fragment;
 }
 
@@ -384,15 +398,11 @@ function getRepoInfo() {
   fetch(`https://api.github.com/repos/${repo}`)
     .then(r => r.json())
     .then(({ description, homepage }) => {
-      document.getElementById('repo-description').textContent = description || '';
+      document.getElementById('repo-description').textContent = description || `Status page for ${repo}`;
       const link = document.getElementById('repo-link');
-      if (homepage) {
-        link.href = link.textContent = homepage;
-        document.title = `Status page for ${homepage}`;
-      } else {
-        link.hidden = true;
-        document.title = repo;
-      }
+      link.href = homepage || `https://github.com/${repo}`;
+      link.textContent = homepage || link.href;
+      document.title = homepage ? `Status page for ${homepage}` : `Status — ${repo}`;
     })
     .catch(() => document.getElementById('repo-description').parentElement.hidden = true);
 }
