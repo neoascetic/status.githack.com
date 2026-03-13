@@ -49,7 +49,7 @@ body {
   overflow-x: hidden;
 }
 
-.wrap { max-width: 960px; min-width: 500px; margin: 0 auto; padding: 3rem 1rem; }
+.wrap { max-width: 960px; min-width: 360px; margin: 0 auto; padding: 3rem 1rem; }
 
 .wrap > header { text-align: center; margin-bottom: 2rem; min-height: 160px; }
 
@@ -396,7 +396,6 @@ async function loadReports() {
 
   return fragment;
 }
-
 let refreshTimer;
 function scheduleRefresh() {
   clearTimeout(refreshTimer);
