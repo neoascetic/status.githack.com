@@ -441,7 +441,7 @@ function initTooltip() {
 const reports = document.getElementById('reports');
 for (let i = 0; i < 3; i++) reports.appendChild(buildSkeleton());
 refresh().then(initTooltip);
-getRepoInfo();
+(window.requestIdleCallback || setTimeout)(getRepoInfo);
   </script>
 </body>
 </html>
