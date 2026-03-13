@@ -434,7 +434,7 @@ function initTooltip() {
 
 const reports = document.getElementById('reports');
 refresh().then(initTooltip);
-(window.requestIdleCallback || setTimeout)(getRepoInfo);
+window.addEventListener('load', getRepoInfo);
   </script>
 </body>
 </html>
