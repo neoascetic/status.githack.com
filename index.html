@@ -191,15 +191,6 @@ footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--fg); }
 footer .foot-cta { margin-bottom: .5rem; }
 footer .foot-cta a { color: var(--link); font-weight: 500; }
-
-#status-ad {
-  display: flex;
-  justify-content: center;
-  min-height: 200px;
-  overflow: hidden;
-  transition: opacity .6s, max-height .6s, min-height .6s, margin .6s;
-}
-#status-ad.hidden { opacity: 0; max-height: 0; min-height: 0; margin: 0; }
   </style>
 </head>
 <body>
@@ -212,20 +203,8 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
 
     <main>
       <link rel="preconnect" href="https://server.ethicalads.io">
-      <div id="status-ad" class="flat adaptive horizontal" data-ea-publisher="githackcom" data-ea-type="image" data-ea-verbosity="quiet"></div>
+      <div id="status-ad" class="flat adaptive horizontal" data-ea-publisher="githackcom" data-ea-style="fixedfooter" data-ea-type="text" data-ea-verbosity="quiet"></div>
       <script defer src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
-      <script>
-        window.addEventListener('load', () => {
-          ethicalads.wait.then(placements => {
-            if (!placements.length) {
-              const ad = document.getElementById('status-ad');
-              ad.classList.add('hidden');
-              ad.addEventListener('transitionend', () => ad.remove(), { once: true });
-            }
-          });
-        });
-      </script>
-
 
       <div id="reports"></div>
       <p id="last-updated" hidden></p>
