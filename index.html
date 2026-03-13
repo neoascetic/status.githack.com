@@ -14,130 +14,381 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-status-bar-style" content="default">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2328a745'/></svg>">
-  <script>
-    function setTheme() {
-      const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-bs-theme', theme);
-    }
-    setTheme();
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setTheme);
-  </script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .status-btn {
-      height: 32px;
-      width: 32px;
-      padding: 0;
-      margin: 1px;
-      display: block;
-      align-items: center;
-      justify-content: center;
-    }
-    .container-limited {
-      max-width: 960px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    #carbon-container { min-height: 130px; }
-    #carbon-responsive { margin: 10px auto; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --c-success: #28a745;
+  --c-partial:  #ffc107;
+  --c-failure:  #dc3545;
+  --c-nodata:   #868e96;
+  --link:    #0d6efd;
+  --bg:      #fff;
+  --fg:      #212529;
+  --muted:   #6c757d;
+  --border:  #dee2e6;
+  --radius:  6px;
+  --radius-sm: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:      #121212;
+    --fg:      #e9ecef;
+    --muted:   #adb5bd;
+    --border:  #2c2c2c;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}
+
+.wrap { max-width: 960px; margin: 0 auto; padding: 3rem 1rem; }
+
+.wrap > header { text-align: center; margin-bottom: 2rem; }
+
+h1 { font-size: 3rem; font-weight: 300; margin-bottom: .5rem; }
+
+#repo-description { color: var(--muted); margin-bottom: .25rem; }
+
+#repo-link { color: var(--link); }
+
+[data-status="success"] { --status: var(--c-success); --on-status: #fff;    }
+[data-status="partial"]  { --status: var(--c-partial);  --on-status: #212529; }
+[data-status="failure"]  { --status: var(--c-failure);  --on-status: #fff;    }
+[data-status="nodata"]   { --status: var(--c-nodata);   --on-status: #fff;    }
+
+article {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+article > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .6rem 1rem;
+}
+
+article[data-status] { border-color: var(--status); }
+
+article[data-status] > header {
+  background: var(--status);
+  color: var(--on-status);
+}
+
+article[data-status] > header h3 {
+  font-size: .95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.card-uptime {
+  display: block;
+  text-align: right;
+  color: var(--muted);
+  font-size: .8rem;
+  padding: .4rem 1rem .3rem;
+}
+
+.stream {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  gap: 2px;
+  padding: .4rem 1rem 1rem;
+}
+
+button[data-status] {
+  height: 32px;
+  width: 100%;
+  background: var(--status);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: default;
+  opacity: .85;
+  transition: opacity .1s;
+}
+button[data-status]:hover { opacity: 1; }
+
+#tooltip {
+  position: fixed;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .5rem .75rem;
+  font-size: .85rem;
+  width: 200px;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+  z-index: 9999;
+  line-height: 1.4;
+}
+#tooltip[hidden] { display: none; }
+#tooltip strong  { display: block; margin-bottom: .3rem; }
+#tooltip [data-status] { color: var(--status); }
+#tooltip .tip-desc { color: var(--muted); font-size: .8rem; margin-top: .2rem; }
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius-sm);
+}
+
+article[data-skeleton] > header { border-bottom: 1px solid var(--border); }
+article[data-skeleton] .sk-title  { width: 40%; height: 1rem; }
+article[data-skeleton] .sk-badge  { width: 18%; height: 1rem; }
+article[data-skeleton] .sk-uptime { width: 30%; height: .75rem; margin: .6rem 1rem .5rem auto; }
+article[data-skeleton] .sk-bar    { height: 2.5rem; margin: .4rem 1rem 1rem; }
+
+[data-alert] {
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid var(--c-partial);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+[data-alert] h4 { margin-bottom: .4rem; }
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: .85rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+footer .foot-links { margin-bottom: .75rem; }
+footer .foot-links a { margin: 0 .6rem; }
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: var(--fg); }
+footer .foot-cta { margin-bottom: .5rem; }
+footer .foot-cta a { color: var(--link); font-weight: 500; }
+
+#carbon-container { min-height: 130px; }
+#carbon-responsive { margin: 10px auto; }
   </style>
 </head>
 <body>
-  <div class="py-5 container-limited px-3 px-md-0">
-    <header class="mb-4">
-      <h1 class="display-4 text-center">Service status</h1>
-      <div class="text-center mb-3 placeholder-glow">
-        <p id="repo-description" class="mb-2 text-muted placeholder col-6 rounded mx-auto bg-secondary-subtle">&nbsp;</p>
-        <a id="repo-link" class="text-break" href="#" target="_blank" class="text-decoration-none d-block placeholder col-4 rounded mx-auto bg-secondary-subtle">&nbsp;</a>
-      </div>
+  <div class="wrap">
+    <header>
+      <h1>Service status</h1>
+      <p id="repo-description"></p>
+      <a id="repo-link" href="#" target="_blank"></a>
     </header>
+
     <main>
       <div id="carbon-container">
         <script async src="//cdn.carbonads.com/carbon.js?serve=CEADPK3U&placement=rawgithackcom&format=responsive" id="_carbonads_js"></script>
       </div>
-      <div id="reports" class="mb-5">
-        <div class="card mb-4 border border-light-subtle placeholder-glow" aria-hidden="true">
-          <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
-            <h3 class="card-title col-6 mb-0 text-uppercase fs-5">
-              <span class="placeholder col-6 bg-secondary-subtle rounded">&nbsp;</span>
-            </h3>
-            <span class="placeholder col-2 bg-secondary-subtle rounded">&nbsp;</span>
-          </div>
-          <div class="card-body py-2">
-            <div class="text-end text-muted small">
-              <span class="placeholder col-4 bg-secondary-subtle rounded">&nbsp;</span>
-            </div>
-            <div class="d-flex flex-row placeholder my-1 py-1 col-12 bg-secondary-subtle rounded">
-              &nbsp;
-            </div>
-          </div>
-        </div>
-        <div class="card mb-4 border border-light-subtle placeholder-glow" aria-hidden="true">
-          <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
-            <h3 class="card-title col-6 mb-0 text-uppercase fs-5">
-              <span class="placeholder col-6 bg-secondary-subtle rounded">&nbsp;</span>
-            </h3>
-            <span class="placeholder col-2 bg-secondary-subtle rounded">&nbsp;</span>
-          </div>
-          <div class="card-body py-2">
-            <div class="text-end text-muted small">
-              <span class="placeholder col-4 bg-secondary-subtle rounded">&nbsp;</span>
-            </div>
-            <div class="d-flex flex-row placeholder my-1 py-1 col-12 bg-secondary-subtle rounded">
-              &nbsp;
-            </div>
-          </div>
-        </div>
-        <div class="card mb-4 border border-light-subtle placeholder-glow" aria-hidden="true">
-          <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
-            <h3 class="card-title col-6 mb-0 text-uppercase fs-5">
-              <span class="placeholder col-6 bg-secondary-subtle rounded">&nbsp;</span>
-            </h3>
-            <span class="placeholder col-2 bg-secondary-subtle rounded">&nbsp;</span>
-          </div>
-          <div class="card-body py-2">
-            <div class="text-end text-muted small">
-              <span class="placeholder col-4 bg-secondary-subtle rounded">&nbsp;</span>
-            </div>
-            <div class="d-flex flex-row placeholder my-1 py-1 col-12 bg-secondary-subtle rounded">
-              &nbsp;
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="templates" style="display: none">
-        <button id="statusBtnTemplate" type="button" class="btn btn-sm status-btn $btnClass" data-status="$status" data-date="$date" data-bs-toggle="popover" data-bs-html="true" data-bs-title="$date" data-bs-content="$statusDesc"></button>
-        <div id="statusLineTemplate" class="d-flex flex-row"></div>
-        <div id="statusStreamContainerTemplate" class="d-flex flex-row mb-2 px-3"></div>
-        <div id="statusContainerTemplate" class="card mb-4 $borderClass">
-          <div class="card-header $headerBgClass d-flex justify-content-between align-items-center border-bottom border-1 border-light-subtle">
-            <h3 class="card-title mb-0 text-uppercase fs-5">$title</h3>
-            <span class="$badgeClass">$statusText</span>
-          </div>
-          <div class="card-body py-2">
-            <div class="text-end text-muted small">$upTime in the last 30 days</div>
-          </div>
-        </div>
-        <div id="noDataAlertTemplate" class="alert alert-warning mt-4">
-          <h4 class="alert-heading">No Data</h4>
-          <p class="mb-0">No monitoring data found for this repository. Please check your configuration or wait for the first check to complete.</p>
-        </div>
-      </div>
+
+      <div id="reports"></div>
     </main>
-    <footer class="text-center text-muted small mt-5 pt-4 border-top border-2 border-light-subtle">
-      <div class="mb-3">
-        <a href="/" class="link-secondary text-decoration-none me-3">Main page</a>
-        <a href="https://github.com/neoascetic/status.githack.com" class="link-secondary text-decoration-none me-3" target="_blank">Source</a>
+
+    <footer>
+      <div class="foot-links">
+        <a href="/">Main page</a>
+        <a href="https://github.com/neoascetic/status.githack.com" target="_blank">Source</a>
       </div>
-      <div class="mb-3">
-        <span class="text-muted">Want your own status page? </span>
-        <a href="https://github.com/neoascetic/status.githack.com#why-use-statusgithackcom" class="link-primary text-decoration-none fw-medium" target="_blank">Create one for free</a>
+      <div class="foot-cta">
+        <span>Want your own status page? </span>
+        <a href="https://github.com/neoascetic/status.githack.com#why-use-statusgithackcom" target="_blank">Create one for free</a>
       </div>
       <div>© 2025 <a href="https://github.com/neoascetic" class="text-decoration-none">Pavel Puchkin<a></a></div>
     </footer>
   </div>
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script defer src="index.js"></script>
-  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7c705aceb32f4882915d8cc8e51a8000"}'></script>
+
+  <div id="tooltip" hidden></div>
+
+  <script>
+const MAX_DAYS = 30;
+const repo = new URLSearchParams(location.search).get('r') || 'neoascetic/status.githack.com-monitor';
+const logUrl = `https://raw.githubusercontent.com/${repo}/refs/heads/log/log.csv`;
+
+const STATUS_PROPS = {
+  success: { text: 'Fully Operational',  desc: 'No downtime recorded on this day.' },
+  partial: { text: 'Partial Outage',     desc: 'Partial outages recorded on this day.' },
+  failure: { text: 'Major Outage',       desc: 'Major outages recorded on this day.' },
+  nodata:  { text: 'No Data Available',  desc: 'Health check was not performed.' },
+};
+
+function uptimeColor(val) {
+  return val == null ? 'nodata' : val === 1 ? 'success' : val < 0.3 ? 'failure' : 'partial';
+}
+
+function buildSkeleton() {
+  const el = document.createElement('article');
+  el.dataset.skeleton = '';
+  el.innerHTML =
+    '<header><span class="skeleton sk-title"></span><span class="skeleton sk-badge"></span></header>' +
+    '<span class="skeleton sk-uptime"></span>' +
+    '<div class="skeleton sk-bar"></div>';
+  return el;
+}
+
+function buildSquare(date, uptimeVal) {
+  const color = uptimeColor(uptimeVal);
+  const { text, desc } = STATUS_PROPS[color];
+  const btn = document.createElement('button');
+  btn.dataset.status     = color;
+  btn.dataset.date       = date.toDateString();
+  btn.dataset.statusText = text;
+  btn.dataset.statusDesc = desc;
+  return btn;
+}
+
+function buildCard(key, uptimeData) {
+  const color = uptimeColor(uptimeData[0]);
+
+  const h3 = document.createElement('h3');
+  h3.textContent = key;
+
+  const badge = document.createElement('span');
+  badge.textContent = STATUS_PROPS[color].text;
+
+  const header = document.createElement('header');
+  header.append(h3, badge);
+
+  const uptimeEl = document.createElement('small');
+  uptimeEl.className = 'card-uptime';
+  uptimeEl.textContent = `${uptimeData.upTime} in the last 30 days`;
+
+  const stream = document.createElement('div');
+  stream.className = 'stream';
+  const today = new Date();
+  for (let i = MAX_DAYS - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    stream.appendChild(buildSquare(date, uptimeData[i]));
+  }
+
+  const article = document.createElement('article');
+  article.dataset.status = color;
+  article.append(header, uptimeEl, stream);
+  return article;
+}
+
+function buildNoDataAlert() {
+  const el = document.createElement('div');
+  el.dataset.alert = '';
+  el.innerHTML = '<h4>No Data</h4><p>No monitoring data found for this repository. Please check your configuration or wait for the first check to complete.</p>';
+  return el;
+}
+
+function splitRowsByDate(rows) {
+  const byDate = {};
+  let sum = 0, count = 0;
+  for (const [dateTimeStr, resultStr] of rows) {
+    const date = new Date(Date.parse(dateTimeStr.replaceAll('-', '/') + ' GMT'));
+    const key = date.toDateString();
+    if (!byDate[key]) byDate[key] = [];
+    const ok = parseInt(resultStr) >= 200 && parseInt(resultStr) < 300 ? 1 : 0;
+    sum += ok;
+    count++;
+    byDate[key].push(ok);
+  }
+  byDate.upTime = count ? ((sum / count) * 100).toFixed(2) + '%' : '--%';
+  return byDate;
+}
+
+function normalizeData(logData) {
+  const byDate = splitRowsByDate(logData);
+  const now = Date.now();
+  const result = {};
+  for (const [key, vals] of Object.entries(byDate)) {
+    if (key === 'upTime') continue;
+    const relDays = Math.floor(Math.abs(now - new Date(key).getTime()) / 864e5);
+    result[relDays] = vals.length ? vals.reduce((a, v) => a + v) / vals.length : null;
+  }
+  result.upTime = byDate.upTime;
+  return result;
+}
+
+async function genAllReports() {
+  const reports = document.getElementById('reports');
+  for (let i = 0; i < 3; i++) reports.appendChild(buildSkeleton());
+
+  const response = await fetch(logUrl);
+  if (!response.ok) {
+    reports.replaceChildren(buildNoDataAlert());
+    return;
+  }
+
+  const acc = {};
+  for (const line of (await response.text()).split('\n')) {
+    let [key, dateTime, status] = line.split(',');
+    if (!key) continue;
+    key = key.replaceAll('_', ' ');
+    (acc[key] ??= []).push([dateTime, status]);
+  }
+
+  reports.querySelectorAll('[data-skeleton]').forEach(el => el.remove());
+  for (const key of Object.keys(acc).sort()) {
+    reports.appendChild(buildCard(key, normalizeData(acc[key])));
+  }
+}
+
+function getRepoInfo() {
+  fetch(`https://api.github.com/repos/${repo}`)
+    .then(r => r.json())
+    .then(({ description, homepage }) => {
+      document.getElementById('repo-description').textContent = description || '';
+      const link = document.getElementById('repo-link');
+      if (homepage) {
+        link.href = link.textContent = homepage;
+        document.title = `Status page for ${homepage}`;
+      } else {
+        link.hidden = true;
+        document.title = repo;
+      }
+    })
+    .catch(() => document.getElementById('repo-description').parentElement.hidden = true);
+}
+
+function initTooltip() {
+  const tooltip = document.getElementById('tooltip');
+  const reports = document.getElementById('reports');
+
+  reports.addEventListener('mouseover', e => {
+    const btn = e.target.closest('button[data-status]');
+    if (!btn) return;
+    const { date, status, statusText, statusDesc } = btn.dataset;
+    tooltip.innerHTML =
+      `<strong>${date}</strong>` +
+      `<span data-status="${status}">${statusText}</span>` +
+      `<p class="tip-desc">${statusDesc}</p>`;
+    tooltip.hidden = false;
+  });
+
+  reports.addEventListener('mouseout', e => {
+    if (!e.relatedTarget?.closest('button[data-status]')) tooltip.hidden = true;
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (tooltip.hidden) return;
+    const gap = 10, tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    const x = e.clientX + gap + tw + gap < window.innerWidth  ? e.clientX + gap : e.clientX - gap - tw;
+    const y = e.clientY + gap + th + gap < window.innerHeight ? e.clientY + gap : e.clientY - gap - th;
+    tooltip.style.left = Math.max(gap, x) + 'px';
+    tooltip.style.top  = Math.max(gap, y) + 'px';
+  });
+}
+
+genAllReports().then(initTooltip);
+getRepoInfo();
+  </script>
 </body>
 </html>
