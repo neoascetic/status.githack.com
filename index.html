@@ -51,11 +51,13 @@ body {
 
 .wrap { max-width: 960px; min-width: 360px; margin: 0 auto; padding: 3rem 1rem; }
 
-.wrap > header { text-align: center; margin-bottom: 2rem; min-height: 160px; }
+.wrap > header { text-align: center; margin-bottom: 2rem; }
 
 h1 { font-size: 3rem; font-weight: 300; margin-bottom: .5rem; }
 
 #repo-description { color: var(--muted); margin-bottom: .25rem; }
+#repo-description.skeleton { width: 260px; height: .9rem; margin: 0 auto .5rem; }
+#repo-link.skeleton { width: 160px; height: .85rem; margin: 0 auto; display: block; }
 #last-updated { color: var(--muted); font-size: .8rem; margin-bottom: 1.5rem; }
 
 #repo-link { color: var(--link); }
@@ -204,21 +206,21 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
   <div class="wrap">
     <header>
       <h1>Service status</h1>
-      <p id="repo-description"></p>
-      <a id="repo-link" href="#" target="_blank"></a>
+      <p id="repo-description" class="skeleton"></p>
+      <a id="repo-link" class="skeleton" href="#" target="_blank"></a>
     </header>
 
     <main>
       <link rel="preconnect" href="https://server.ethicalads.io">
       <div id="status-ad" class="flat adaptive horizontal" data-ea-publisher="githackcom" data-ea-type="image" data-ea-verbosity="quiet"></div>
-      <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
+      <script defer src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
       <script>
         window.addEventListener('load', () => {
-          ethicalads.wait.then((placements) => {
+          ethicalads.wait.then(placements => {
             if (!placements.length) {
-              const ad = document.getElementById("status-ad");
-              ad.classList.add("hidden");
-              ad.addEventListener("transitionend", () => ad.remove(), { once: true });
+              const ad = document.getElementById('status-ad');
+              ad.classList.add('hidden');
+              ad.addEventListener('transitionend', () => ad.remove(), { once: true });
             }
           });
         });
@@ -244,7 +246,7 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
 
   <div id="tooltip" hidden></div>
 
-  <script>
+  <script type="module">
 const MAX_DAYS = 30;
 const repo = new URLSearchParams(location.search).get('r') || 'neoascetic/status.githack.com-monitor';
 const logUrl = `https://raw.githubusercontent.com/${repo}/refs/heads/log/log.csv`;
@@ -412,8 +414,11 @@ function getRepoInfo() {
   fetch(`https://api.github.com/repos/${repo}`)
     .then(r => r.json())
     .then(({ description, homepage }) => {
-      document.getElementById('repo-description').textContent = description || `Status page for ${repo}`;
+      const desc = document.getElementById('repo-description');
+      desc.classList.remove('skeleton');
+      desc.textContent = description || `Status page for ${repo}`;
       const link = document.getElementById('repo-link');
+      link.classList.remove('skeleton');
       link.href = homepage || `https://github.com/${repo}`;
       link.textContent = homepage || link.href;
       document.title = homepage ? `Status page for ${homepage}` : `Status — ${repo}`;
