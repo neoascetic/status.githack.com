@@ -326,33 +326,39 @@ function normalizeData(logData) {
   return result;
 }
 
-async function genAllReports() {
-  const reports = document.getElementById('reports');
-  for (let i = 0; i < 3; i++) reports.appendChild(buildSkeleton());
-
+async function loadReports() {
   const response = await fetch(logUrl);
-  if (!response.ok) {
-    reports.replaceChildren(buildNoDataAlert());
-    return;
-  }
+  if (!response.ok) return null;
 
   const acc = {};
-  for (const line of (await response.text()).split('\n')) {
+  for (const line of (await response.text()).split('\n').filter(l => l.trim())) {
     let [key, dateTime, status] = line.split(',');
-    if (!key) continue;
     key = key.replaceAll('_', ' ');
     (acc[key] ??= []).push([dateTime, status]);
   }
 
-  reports.querySelectorAll('[data-skeleton]').forEach(el => el.remove());
+  const fragment = document.createDocumentFragment();
   let worstStatus = 'nodata';
   for (const key of Object.keys(acc).sort()) {
     const data = normalizeData(acc[key]);
     const color = uptimeColor(data[0]);
     if (STATUS_RANK[color] > STATUS_RANK[worstStatus]) worstStatus = color;
-    reports.appendChild(buildCard(key, data));
+    fragment.appendChild(buildCard(key, data));
   }
   setFavicon(worstStatus);
+  return fragment;
+}
+
+let refreshTimer;
+function scheduleRefresh() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(refresh, 5 * 60_000);
+}
+
+async function refresh() {
+  const reports = document.getElementById('reports');
+  reports.replaceChildren((await loadReports()) ?? buildNoDataAlert());
+  scheduleRefresh();
 }
 
 function getRepoInfo() {
@@ -401,7 +407,9 @@ function initTooltip() {
   });
 }
 
-genAllReports().then(initTooltip);
+const reports = document.getElementById('reports');
+for (let i = 0; i < 3; i++) reports.appendChild(buildSkeleton());
+refresh().then(initTooltip);
 getRepoInfo();
   </script>
 </body>
