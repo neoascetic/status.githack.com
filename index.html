@@ -16,7 +16,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2328a745'/></svg>">
   <style>
 *, *::before, *::after { box-sizing: border-box; }
-body, h1, h3, h4, p, section, header, footer, small { margin: 0; padding: 0; }
+body, h1, h2, h3, p, section, header, footer, small { margin: 0; padding: 0; }
 
 :root {
   --c-success: #28a745;
@@ -89,7 +89,7 @@ section[data-status] > header {
   color: var(--on-status);
 }
 
-section[data-status] > header h3 {
+section[data-status] > header h2 {
   flex: 1;
   min-width: 0;
   font-size: .95rem;
@@ -175,7 +175,7 @@ section[data-skeleton] .sk-bar    { height: 2.5rem; margin: .4rem 1rem 1rem; }
   padding: 1rem 1.25rem;
   margin-top: 1rem;
 }
-[data-alert] h4 { margin-bottom: .4rem; }
+[data-alert] h3 { margin-bottom: .4rem; }
 
 footer {
   text-align: center;
@@ -299,14 +299,14 @@ function buildSquare(date, uptimeVal, counts) {
 function buildCard(key, uptimeData) {
   const color = uptimeColor(uptimeData[0]);
 
-  const h3 = document.createElement('h3');
-  h3.textContent = key;
+  const h2 = document.createElement('h2');
+  h2.textContent = key;
 
   const badge = document.createElement('span');
   badge.textContent = STATUS_PROPS[color].text;
 
   const header = document.createElement('header');
-  header.append(h3, badge);
+  header.append(h2, badge);
 
   const uptimeEl = document.createElement('small');
   uptimeEl.className = 'card-uptime';
@@ -330,7 +330,7 @@ function buildCard(key, uptimeData) {
 function buildNoDataAlert() {
   const el = document.createElement('div');
   el.dataset.alert = '';
-  el.innerHTML = '<h4>No Data</h4><p>No monitoring data found for this repository. <br> Please check your configuration or wait for the first check to complete.</p>';
+  el.innerHTML = '<h3>No Data</h3><p>No monitoring data found for this repository. <br> Please check your configuration or wait for the first check to complete.</p>';
   return el;
 }
 
