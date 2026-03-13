@@ -192,7 +192,7 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
 
     <main>
       <div id="carbon-container">
-        <script async src="//cdn.carbonads.com/carbon.js?serve=CEADPK3U&placement=rawgithackcom&format=responsive" id="_carbonads_js"></script>
+        <script defer src="//cdn.carbonads.com/carbon.js?serve=CEADPK3U&placement=rawgithackcom&format=responsive" id="_carbonads_js"></script>
       </div>
 
       <div id="reports"></div>
@@ -227,6 +227,15 @@ const STATUS_PROPS = {
 
 function uptimeColor(val) {
   return val == null ? 'nodata' : val === 1 ? 'success' : val < 0.3 ? 'failure' : 'partial';
+}
+
+const STATUS_RANK = { success: 0, nodata: 0, partial: 1, failure: 2 };
+
+function setFavicon(status) {
+  const fill = { success: '%2328a745', partial: '%23ffc107', failure: '%23dc3545' }[status];
+  if (!fill) return;
+  document.querySelector('link[rel="icon"]').href =
+    `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='${fill}'/></svg>`;
 }
 
 function buildSkeleton() {
@@ -336,9 +345,14 @@ async function genAllReports() {
   }
 
   reports.querySelectorAll('[data-skeleton]').forEach(el => el.remove());
+  let worstStatus = 'nodata';
   for (const key of Object.keys(acc).sort()) {
-    reports.appendChild(buildCard(key, normalizeData(acc[key])));
+    const data = normalizeData(acc[key]);
+    const color = uptimeColor(data[0]);
+    if (STATUS_RANK[color] > STATUS_RANK[worstStatus]) worstStatus = color;
+    reports.appendChild(buildCard(key, data));
   }
+  setFavicon(worstStatus);
 }
 
 function getRepoInfo() {
