@@ -33,12 +33,18 @@ body, h1, h2, h3, p, section, header, footer, small { margin: 0; padding: 0; }
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not([data-theme="light"]) {
     --bg:      #121212;
     --fg:      #e9ecef;
     --muted:   #adb5bd;
     --border:  #2c2c2c;
   }
+}
+html[data-theme="dark"] {
+  --bg:      #121212;
+  --fg:      #e9ecef;
+  --muted:   #adb5bd;
+  --border:  #2c2c2c;
 }
 
 body {
@@ -192,6 +198,25 @@ footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--fg); }
 footer .foot-cta { margin-bottom: .5rem; }
 footer .foot-cta a { color: var(--link); font-weight: 500; }
+
+#theme-toggle {
+  position: fixed;
+  top: .75rem;
+  right: .75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  width: 2.25rem;
+  height: 2.25rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: border-color .2s;
+}
+#theme-toggle:hover { border-color: var(--muted); }
   </style>
 </head>
 <body>
@@ -230,6 +255,7 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
   </div>
 
   <div id="tooltip" hidden></div>
+  <button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme"></button>
 
   <script type="module">
 const MAX_DAYS = 30;
@@ -443,6 +469,23 @@ function initTooltip() {
 const reports = document.getElementById('reports');
 refresh().then(initTooltip);
 window.addEventListener('load', getRepoInfo);
+
+(function initTheme() {
+  const btn = document.getElementById('theme-toggle');
+  const stored = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  let dark = stored ? stored === 'dark' : prefersDark;
+  function apply() {
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    btn.textContent = dark ? '☀️' : '🌙';
+  }
+  apply();
+  btn.addEventListener('click', () => {
+    dark = !dark;
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+    apply();
+  });
+})();
   </script>
 </body>
 </html>
