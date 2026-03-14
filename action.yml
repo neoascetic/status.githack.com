@@ -3,11 +3,13 @@ name: Run status check and show log
 runs:
   using: "composite"
   steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
     - name: Run status check
       run: ${{ github.action_path }}/run
       shell: bash
     - name: Commit and push log.csv to log branch
-      uses: stefanzweifel/git-auto-commit-action@v6
+      uses: stefanzweifel/git-auto-commit-action@v7
       if: always()
       with:
         file_pattern: 'log.csv'
