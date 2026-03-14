@@ -36,6 +36,19 @@ done < status.cfg
 
 if git ls-remote --exit-code --heads origin log > /dev/null; then
   git fetch origin log:log
+
+  # drop old commits to prevent log branch from growing indefinitely
+  first_new=$(git log log --format="%H" --after="2 months ago" | tail -1)
+  if [[ -n $first_new ]] && git rev-parse --verify "${first_new}^" > /dev/null 2>&1; then
+    echo "Squashing commits older than 2 months..."
+    squash_root=$(git commit-tree "${first_new}^{tree}" -m "Squashed old commits")
+    git rebase --onto "$squash_root" "${first_new}^" log
+  elif [[ -z $first_new ]]; then
+    # all commits are older than the cutoff — squash the entire branch into one commit
+    echo "All commits are older than 2 months, squashing entire history..."
+    squash_root=$(git commit-tree "log^{tree}" -m "Squashed old commits")
+    git branch -f log "$squash_root"
+  fi
   git switch log
 else
   git switch --orphan log
