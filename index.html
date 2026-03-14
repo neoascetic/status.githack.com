@@ -204,7 +204,7 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
 
     <main>
       <link rel="preconnect" href="https://server.ethicalads.io">
-      <div id="status-ad" class="flat adaptive horizontal" data-ea-publisher="githackcom" data-ea-style="fixedfooter" data-ea-type="text" data-ea-verbosity="quiet"></div>
+      <div id="status-ad" class="adaptive" data-ea-publisher="githackcom" data-ea-style="fixedfooter" data-ea-type="text" data-ea-verbosity="quiet"></div>
       <script defer src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
 
       <div id="reports">
@@ -375,12 +375,13 @@ async function loadReports() {
 let refreshTimer;
 function scheduleRefresh() {
   clearTimeout(refreshTimer);
-  refreshTimer = setTimeout(refresh, 5 * 60_000);
+  refreshTimer = setTimeout(refresh, 60_000);
 }
 
 async function refresh() {
   const reports = document.getElementById('reports');
   reports.replaceChildren((await loadReports()) ?? buildNoDataAlert());
+  window.ethicalads?.reload?.();
   scheduleRefresh();
 }
 
@@ -388,6 +389,11 @@ function getRepoInfo() {
   fetch(`https://api.github.com/repos/${repo}`)
     .then(r => r.json())
     .then(({ description, homepage }) => {
+      if (description) {
+        const stopwords = new Set(['the','and','for','its','our','own','his','her','she','they','your','this','that','with','from','via','are','was','were','not','but','their']);
+        const keywords = [...new Set(description.toLowerCase().match(/\w{3,}/g) ?? [])].filter(w => !stopwords.has(w)).join('|');
+        if (keywords) document.getElementById('status-ad').dataset.eaKeywords = keywords;
+      }
       const desc = document.getElementById('repo-description');
       desc.classList.remove('skeleton');
       desc.textContent = description || `Status page for ${repo}`;
