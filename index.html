@@ -402,10 +402,12 @@ function scheduleRefresh() {
   refreshTimer = setTimeout(refresh, 60_000);
 }
 
+let refreshed = false;
 async function refresh() {
   const reports = document.getElementById('reports');
   reports.replaceChildren((await loadReports()) ?? buildNoDataAlert());
-  window.ethicalads?.reload?.();
+  if (refreshed) window.ethicalads?.reload?.();
+  refreshed = true;
   scheduleRefresh();
 }
 
@@ -467,20 +469,18 @@ const reports = document.getElementById('reports');
 refresh().then(initTooltip);
 window.addEventListener('load', getRepoInfo);
 
-(function initTheme() {
-  const btn = document.getElementById('theme-toggle');
-  let dark = document.documentElement.dataset.theme === 'dark';
-  function apply() {
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    btn.textContent = dark ? '☀️' : '🌙';
-  }
-  apply();
-  btn.addEventListener('click', () => {
-    dark = !dark;
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
-    apply();
-  });
-})();
+const btn = document.getElementById('theme-toggle');
+let dark = document.documentElement.dataset.theme === 'dark';
+function applyTheme() {
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  btn.textContent = dark ? '☀️' : '🌙';
+}
+applyTheme();
+btn.addEventListener('click', () => {
+  dark = !dark;
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  applyTheme();
+});
   </script>
 </body>
 </html>
