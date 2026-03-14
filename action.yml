@@ -23,6 +23,7 @@ runs:
       with:
         file_pattern: 'log.csv'
         branch: 'log'
+        create_branch: true
         commit_message: 'Update status log'
         commit_author: ${{ env.GIT_AUTHOR_NAME }} <${{ env.GIT_AUTHOR_EMAIL }}>
         push_options: '--force'

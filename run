@@ -52,6 +52,7 @@ if git ls-remote --exit-code --heads origin log > /dev/null; then
   git switch log
 else
   git switch --orphan log
+  git commit --allow-empty -m "Initialize log branch"
 fi
 
 curl_exit_code=0
