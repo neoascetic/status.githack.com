@@ -14,6 +14,11 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-status-bar-style" content="default">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2328a745'/></svg>">
+  <script>
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = (stored ?? (prefersDark ? 'dark' : 'light'));
+  </script>
   <style>
 *, *::before, *::after { box-sizing: border-box; }
 body, h1, h2, h3, p, section, header, footer, small { margin: 0; padding: 0; }
@@ -32,14 +37,6 @@ body, h1, h2, h3, p, section, header, footer, small { margin: 0; padding: 0; }
   --radius-sm: 4px;
 }
 
-@media (prefers-color-scheme: dark) {
-  html:not([data-theme="light"]) {
-    --bg:      #121212;
-    --fg:      #e9ecef;
-    --muted:   #adb5bd;
-    --border:  #2c2c2c;
-  }
-}
 html[data-theme="dark"] {
   --bg:      #121212;
   --fg:      #e9ecef;
@@ -472,9 +469,7 @@ window.addEventListener('load', getRepoInfo);
 
 (function initTheme() {
   const btn = document.getElementById('theme-toggle');
-  const stored = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  let dark = stored ? stored === 'dark' : prefersDark;
+  let dark = document.documentElement.dataset.theme === 'dark';
   function apply() {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
     btn.textContent = dark ? '☀️' : '🌙';
