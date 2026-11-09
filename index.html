@@ -16,7 +16,7 @@
   <script>
     const stored = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.dataset.theme = (stored ?? (prefersDark ? 'dark' : 'light'));
+    document.documentElement.dataset.theme = stored === 'light' || stored === 'dark' ? stored : (prefersDark ? 'dark' : 'light');
   </script>
   <style>
 *, *::before, *::after { box-sizing: border-box; }
@@ -213,6 +213,17 @@ footer .foot-cta a { color: var(--link); font-weight: 500; }
   transition: border-color .2s;
 }
 #theme-toggle:hover { border-color: var(--muted); }
+#theme-toggle .auto-a {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  font-weight: 800;
+  color: #212529;
+  pointer-events: none;
+}
   </style>
 </head>
 <body>
@@ -469,15 +480,26 @@ refresh().then(initTooltip);
 window.addEventListener('load', getRepoInfo);
 
 const btn = document.getElementById('theme-toggle');
-let dark = document.documentElement.dataset.theme === 'dark';
+const MODES = ['auto', 'light', 'dark'];
+const NEXT_MODE = { auto: 'light', light: 'dark', dark: 'auto' };
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+let mode = MODES.includes(localStorage.getItem('theme')) ? localStorage.getItem('theme') : 'auto';
+
 function applyTheme() {
+  const dark = mode === 'auto' ? darkQuery.matches : mode === 'dark';
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  btn.textContent = dark ? '☀️' : '🌙';
+  btn.innerHTML = mode === 'dark' ? '🌙' : '☀️' + (mode === 'auto' ? '<span class="auto-a">A</span>' : '');
+  btn.dataset.mode = mode;
+  const label = `Theme: ${mode} (click for ${NEXT_MODE[mode]})`;
+  btn.title = label;
+  btn.setAttribute('aria-label', label);
 }
 applyTheme();
+darkQuery.addEventListener('change', () => mode === 'auto' && applyTheme());
 btn.addEventListener('click', () => {
-  dark = !dark;
-  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  mode = NEXT_MODE[mode];
+  if (mode === 'auto') localStorage.removeItem('theme');
+  else localStorage.setItem('theme', mode);
   applyTheme();
 });
   </script>
